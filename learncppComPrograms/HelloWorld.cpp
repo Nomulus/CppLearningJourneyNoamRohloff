@@ -10,8 +10,9 @@ int main(){
     std::cout << "Hello World!\n";
     std::cout << width << " cm wide, now gimme hight in cm: ";
     std::cin >> height;
-    std::cout << " a random val: ";
+    std::cout << "a random val: ";
     std::cin >> futureextraction;
+    std::cout<< futureextraction;
     std::cout << "\n" << height << " cm high you get a " << width * height << " cm cube." << std::endl;
     
     return 0;
