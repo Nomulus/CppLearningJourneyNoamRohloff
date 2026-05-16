@@ -4,33 +4,22 @@ namespace difference_of_squares
 {
 
     // TODO: add your solution here
-    int square_of_sum(int number)
+    constexpr int square_of_sum(int number)
     {
-        int square_sum{0};
 
-        for (int i{0}; i <= number; i++)
-        {
-            square_sum = square_sum + i;
-        }
+        int square_sum{(number * (number + 1)) / 2}; // Gaußsche Summenformel
 
-        square_sum = square_sum * square_sum;
-
-        return square_sum;
+        return square_sum * square_sum; // es läuft so schneller als mit cmath pow()
     }
 
-    int sum_of_squares(int number)
+    constexpr int sum_of_squares(int number)
     {
 
-        int sum_square{0};
-
-        for (int i{0}; i <= number; i++)
-        {
-            sum_square = sum_square + i * i;
-        }
+        int sum_square{(number * (number + 1) * (2 * number + 1)) / 6};
 
         return sum_square;
     }
-    int difference(int number)
+    constexpr int difference(int number)
     {
         return square_of_sum(number) - sum_of_squares(number);
     }
