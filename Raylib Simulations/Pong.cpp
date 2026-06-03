@@ -13,7 +13,7 @@ int main() {
   const int screen_width = 1200;
   const int screen_height = 800;
   InitWindow(GetScreenWidth(), screen_height, "PongByNoam");
-  SetTargetFPS(60);
+  SetTargetFPS(144);
   while (WindowShouldClose() == false) {
     BeginDrawing();
 
