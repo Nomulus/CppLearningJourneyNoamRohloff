@@ -10,12 +10,31 @@ using namespace std;
 int main() {
   cout << "Start Programming the game now";
 
-  const int screen_width = 1200;
-  const int screen_height = 800;
-  InitWindow(GetScreenWidth(), screen_height, "PongByNoam");
+  Vector2 WindowSize = {1200, 800};
+
+  const int circleRadius = 20;
+  Vector2 ballPos = {WindowSize.x / 2, WindowSize.y / 2};
+
+  Vector2 startingPlayerSize = {20, 120};
+  Vector2 player1Pos = {0, WindowSize.y / 2.0f - startingPlayerSize.y / 2};
+  Vector2 player2Pos = {WindowSize.x - startingPlayerSize.x,
+                        WindowSize.y / 2.0f - startingPlayerSize.y / 2};
+
+  InitWindow(WindowSize.x, WindowSize.y, "PongByNoam");
   SetTargetFPS(144);
+
   while (WindowShouldClose() == false) {
+    deltaTime = GetFrameTime();
+
+    // ----------- updating ----------
+
+    // ----------- drawing ---------------
+
     BeginDrawing();
+
+    DrawCircleV(ballPos, circleRadius, WHITE);
+    DrawRectangleV(player1Pos, startingPlayerSize, WHITE);
+    DrawRectangleV(player2Pos, startingPlayerSize, WHITE);
 
     EndDrawing();
   }
