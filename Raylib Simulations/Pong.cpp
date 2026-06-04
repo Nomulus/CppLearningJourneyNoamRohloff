@@ -8,7 +8,7 @@
 using namespace std;
 
 int main() {
-  cout << "Start Programming the game now";
+  int deltaTime{};
 
   Vector2 WindowSize = {1200, 800};
 
