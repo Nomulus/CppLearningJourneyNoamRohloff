@@ -19,8 +19,8 @@ int main() {
   Vector2 player2Pos = {WindowSize.x - player2Size.x,
                         WindowSize.y / 2.0f - player2Size.y / 2};
 
-  int player1Speed = 3.0f;
-  int player2Speed = 3.0f;
+  int player1Speed = 300.0f;
+  int player2Speed = 300.0f;
 
   InitWindow(WindowSize.x, WindowSize.y, "PongByNoam");
   SetTargetFPS(144);
@@ -31,17 +31,17 @@ int main() {
     // ----------- updating ----------
 
     if (IsKeyDown(KEY_W) && (player1Pos.y > 0)) {
-      player1Pos.y -= player1Speed;
+      player1Pos.y -= player1Speed * GetFrameTime();
     }
     if (IsKeyDown(KEY_S) && (player1Pos.y < WindowSize.y - player1Size.y)) {
-      player1Pos.y += player1Speed;
+      player1Pos.y += player1Speed * GetFrameTime();
     }
 
     if (IsKeyDown(KEY_UP) && (player2Pos.y > 0)) {
-      player2Pos.y -= player2Speed;
+      player2Pos.y -= player2Speed * GetFrameTime();
     }
     if (IsKeyDown(KEY_DOWN) && (player2Pos.y < WindowSize.y - player2Size.y)) {
-      player2Pos.y += player2Speed;
+      player2Pos.y += player2Speed * GetFrameTime();
     }
     // ----------- drawing ---------------
     BeginDrawing();
