@@ -1,7 +1,9 @@
 /* g++ Pong.cpp -lraylib -o pong.exe*/
 
 #include <iostream>
+#include <random>
 #include <raylib.h>
+#include <raymath.h>
 
 using namespace std;
 
@@ -12,6 +14,12 @@ int main() {
 
   const int circleRadius = 20;
   Vector2 ballPos = {WindowSize.x / 2, WindowSize.y / 2};
+
+  random_device rd;
+  mt19937 gen(rd());
+  uniform_int_distribution<int> distr(0, 300);
+
+  Vector2 ballSpeed = {(float)distr(gen), (float)distr(gen)};
 
   Vector2 player1Size{20, 120};
   Vector2 player2Size{20, 120};
@@ -29,6 +37,8 @@ int main() {
     deltaTime = GetFrameTime();
 
     // ----------- updating ----------
+
+    ballPos = Vector2Add(ballPos, Vector2Scale(ballSpeed, (float)deltaTime));
 
     if (IsKeyDown(KEY_W) && (player1Pos.y > 0)) {
       player1Pos.y -= player1Speed * GetFrameTime();
