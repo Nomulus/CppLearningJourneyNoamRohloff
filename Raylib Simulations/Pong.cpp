@@ -12,13 +12,24 @@ int StandardLoop(Vector2 windowSize, int startingSide) {
   const int circleRadius = 13;
   Vector2 ballPos = {windowSize.x / 2, windowSize.y / 2};
   Vector2 newBallPos = {};
+  Vector2 ballSpeed{10000, 0};
 
   random_device rd;
   mt19937 gen(rd());
-  uniform_int_distribution<int> distrX(700, 900);
+
+  uniform_int_distribution<int> distrX(600, 700);
   uniform_int_distribution<int> distrY(-300, 300);
 
-  Vector2 ballSpeed = {(float)distrX(gen), (float)distrY(gen)};
+  switch (startingSide) {
+  case 2: {
+    Vector2 ballSpeed = {(float)distrX(gen), -(float)distrY(gen)};
+    break;
+  }
+  default: {
+    Vector2 ballSpeed = {(float)distrX(gen), (float)distrY(gen)};
+    break;
+  }
+  }
 
   Vector2 player1Size{20, 120};
   Vector2 player2Size{20, 120};
@@ -29,7 +40,6 @@ int StandardLoop(Vector2 windowSize, int startingSide) {
   int player1Speed = 400.0f;
   int player2Speed = 400.0f;
 
-  InitWindow(windowSize.x, windowSize.y, "PongByNoam");
   SetTargetFPS(144);
   double deltaTime{};
 
@@ -91,7 +101,11 @@ int StandardLoop(Vector2 windowSize, int startingSide) {
 int main() {
   float deltaTime{0.0f};
 
-  Vector2 windowSize = {1200, 800};
-  StandardLoop(windowSize);
+  Vector2 windowSize = {1280, 720};
+  int startingSide{1};
+  InitWindow(windowSize.x, windowSize.y, "PongByNoam");
+  while (WindowShouldClose() == false) {
+    startingSide = StandardLoop(windowSize, startingSide);
+  }
   return 0;
 }
