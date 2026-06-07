@@ -7,9 +7,16 @@
 
 using namespace std;
 
-int StandardLoop(Vector2 windowSize, int startingSide) {
+float IncreaseSpeed(float speed, bool isPlayer) {
+  if (isPlayer) {
+    return speed + 20.0f;
+  } else {
+    return speed + 30.0f;
+  }
+}
 
-  const int circleRadius = 13;
+int StandardLoop(Vector2 windowSize, int startingSide) {
+  const int ballRadius = 13;
   Vector2 ballPos = {windowSize.x / 2, windowSize.y / 2};
   Vector2 newBallPos = {};
   Vector2 ballSpeed{10000, 0};
@@ -20,15 +27,12 @@ int StandardLoop(Vector2 windowSize, int startingSide) {
   uniform_int_distribution<int> distrX(600, 700);
   uniform_int_distribution<int> distrY(-300, 300);
 
-  switch (startingSide) {
-  case 2: {
-    Vector2 ballSpeed = {(float)distrX(gen), -(float)distrY(gen)};
-    break;
-  }
-  default: {
-    Vector2 ballSpeed = {(float)distrX(gen), (float)distrY(gen)};
-    break;
-  }
+  if (startingSide == 2) {
+    ballSpeed = {(float)distrX(gen), -(float)distrY(gen)};
+    ballPos.x = 10;
+  } else {
+    ballSpeed = {(float)distrX(gen), (float)distrY(gen)};
+    ballPos.x = windowSize.x - 10;
   }
 
   Vector2 player1Size{20, 120};
@@ -36,9 +40,10 @@ int StandardLoop(Vector2 windowSize, int startingSide) {
   Vector2 player1Pos = {0, windowSize.y / 2.0f - player1Size.y / 2};
   Vector2 player2Pos = {windowSize.x - player2Size.x,
                         windowSize.y / 2.0f - player2Size.y / 2};
+  bool ballHitPlayer{false};
 
-  int player1Speed = 400.0f;
-  int player2Speed = 400.0f;
+  float player1Speed{400.0f};
+  float player2Speed{400.0f};
 
   SetTargetFPS(144);
   double deltaTime{};
@@ -49,21 +54,28 @@ int StandardLoop(Vector2 windowSize, int startingSide) {
     // ----------- updating ----------
 
     newBallPos = Vector2Add(ballPos, Vector2Scale(ballSpeed, (float)deltaTime));
-    if (newBallPos.x < 0 + circleRadius) {
-      ballSpeed.x = -ballSpeed.x - 100;
-      newBallPos = ballPos;
+
+    if ((ballPos.y >= player1Pos.y) &&
+        (ballPos.y <= player1Pos.y + player1Size.y) &&
+        (ballPos.x >= player1Pos.x)) {
+      printf("hitPlayer1\n");
     }
-    if (newBallPos.x > windowSize.x - circleRadius) {
-      ballSpeed.x = -ballSpeed.x - 100;
-      newBallPos = ballPos;
+
+    if ((ballPos.x <= 0 + ballRadius) && (ballSpeed.x <= 0)) {
+      ballSpeed.x = -IncreaseSpeed(ballSpeed.x, false);
+      newBallPos = {0 + ballRadius, ballPos.y};
     }
-    if (newBallPos.y < 0 + circleRadius) {
-      ballSpeed.y = -ballSpeed.y - 100;
-      newBallPos = ballPos;
+    if ((ballPos.x >= windowSize.x - ballRadius) && (ballSpeed.x >= 0)) {
+      ballSpeed.x = -IncreaseSpeed(ballSpeed.x, false);
+      newBallPos = {windowSize.x - ballRadius, ballPos.y};
     }
-    if (newBallPos.y > windowSize.y - circleRadius) {
-      ballSpeed.y = -ballSpeed.y - 1.0;
-      newBallPos = ballPos;
+    if ((ballPos.y <= 0 + ballRadius) && (ballSpeed.y <= 0)) {
+      ballSpeed.y = -IncreaseSpeed(ballSpeed.y, false);
+      newBallPos = {ballPos.x, 0 + ballRadius};
+    }
+    if ((ballPos.y >= windowSize.y - ballRadius) && (ballSpeed.y >= 0)) {
+      ballSpeed.y = -IncreaseSpeed(ballSpeed.y, false);
+      newBallPos = {ballPos.x, windowSize.y - ballRadius};
     }
     ballPos = newBallPos;
 
@@ -88,7 +100,7 @@ int StandardLoop(Vector2 windowSize, int startingSide) {
     ClearBackground(GRAY);
     DrawRectangle(0, 0, windowSize.x, windowSize.y, BLACK);
 
-    DrawCircleV(ballPos, circleRadius, WHITE);
+    DrawCircleV(ballPos, ballRadius, WHITE);
     DrawRectangleV(player1Pos, player1Size, WHITE);
     DrawRectangleV(player2Pos, player2Size, WHITE);
 
