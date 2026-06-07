@@ -16,7 +16,7 @@ float IncreaseSpeed(float speed, bool isPlayer) {
 }
 
 int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
-  const int circleRadius = 13;
+  const int ballRadius = 13;
   Vector2 ballPos = {windowSize.x / 2, windowSize.y / 2};
   Vector2 newBallPos = {};
   Vector2 ballSpeed{10000, 0};
@@ -28,7 +28,7 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
   uniform_int_distribution<int> distrY(-300, 300);
 
   if (startingSide == 2) {
-    ballSpeed = {(float)distrX(gen), -(float)distrY(gen)};
+    ballSpeed = {-(float)distrX(gen), -(float)distrY(gen)};
     ballPos.x = windowSize.x - windowSize.x / 4;
   } else {
     ballSpeed = {(float)distrX(gen), (float)distrY(gen)};
@@ -54,33 +54,38 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
 
     // ----------- updating ----------
 
+    newBallPos = Vector2Add(ballPos, Vector2Scale(ballSpeed, (float)deltaTime));
+
     // -------player 1 hit ----------
-    if ((ballPos.x <= player1Pos.x + player1Size.x) &&
-        (ballPos.y <= player1Pos.y) &&
-        (ballPos.y >= player1Pos.y + player1Size.y) && (ballSpeed.x <= 0)) {
+    if (((ballPos.x - ballRadius) <= (player1Pos.x + player1Size.x)) &&
+        (ballPos.y >= player1Pos.y) &&
+        (ballPos.y <= player1Pos.y + player1Size.y) && (ballSpeed.x <= 0)) {
       player1Speed = IncreaseSpeed(player1Speed, true);
       ballSpeed.x = -IncreaseSpeed(ballSpeed.x, false);
+      newBallPos = ballPos;
+      printf("hitPlayer1");
     }
     // -------player 2 hit ----------
-    if ((ballPos.x >= player2Pos.x) && (ballPos.y <= player2Pos.y) &&
-        (ballPos.y >= player2Pos.y + player2Size.y) && (ballSpeed.x >= 0)) {
+    if ((ballPos.x + ballRadius >= player2Pos.x) &&
+        (ballPos.y >= player2Pos.y) &&
+        (ballPos.y <= player2Pos.y + player2Size.y) && (ballSpeed.x >= 0)) {
       player2Speed = IncreaseSpeed(player2Speed, true);
       ballSpeed.x = -IncreaseSpeed(ballSpeed.x, false);
+      newBallPos = ballPos;
+      printf("hitPlayer2");
     }
-
     // ------ wall hit --------
-    newBallPos = Vector2Add(ballPos, Vector2Scale(ballSpeed, (float)deltaTime));
-    if (newBallPos.x < 0 + circleRadius) {
+    if (ballPos.x < 0 + ballRadius) {
       return 1;
     }
-    if (newBallPos.x > windowSize.x - circleRadius) {
+    if (ballPos.x > windowSize.x - ballRadius) {
       return 2;
     }
-    if (newBallPos.y < 0 + circleRadius) {
+    if ((ballPos.y < 0 + ballRadius) && (ballSpeed.y <= 0)) {
       ballSpeed.y = -IncreaseSpeed(ballSpeed.y, false);
       newBallPos = ballPos;
     }
-    if (newBallPos.y > windowSize.y - circleRadius) {
+    if ((ballPos.y > windowSize.y - ballRadius) && (ballSpeed.y >= 0)) {
       ballSpeed.y = -IncreaseSpeed(ballSpeed.y, false);
       newBallPos = ballPos;
     }
@@ -109,7 +114,7 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
     ClearBackground(GRAY);
     DrawRectangle(0, 0, windowSize.x, windowSize.y, BLACK);
 
-    DrawCircleV(ballPos, circleRadius, WHITE);
+    DrawCircleV(ballPos, ballRadius, WHITE);
     DrawRectangleV(player1Pos, player1Size, WHITE);
     DrawRectangleV(player2Pos, player2Size, WHITE);
 
