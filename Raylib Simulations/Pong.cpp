@@ -49,7 +49,7 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
   while (WindowShouldClose() == false) {
     deltaTime = GetFrameTime();
     if (deltaTime > 1.0f / (float)FPS + 0.1f / (float)FPS) {
-      cout << "deltaTime Warning: " << FPS << " ms" << endl;
+      cout << "deltaTime Warning: " << deltaTime << " ms" << endl;
     }
 
     // ----------- updating ----------
