@@ -52,34 +52,43 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
       cout << "deltaTime Warning: " << deltaTime << " ms" << endl;
     }
 
-    // ----------- updating ----------
+    // -------- player movement ----------
+    player1MovingUp = false;
+    player1MovingDown = false;
+    player2MovingUp = false;
+    player2MovingDown = false;
 
+    if (IsKeyDown(KEY_W) && (player1Pos.y > 0)) {
+      player1Pos.y -= player1Speed * GetFrameTime();
+      player1MovingUp = true;
+    }
+    if (IsKeyDown(KEY_S) && (player1Pos.y < windowSize.y - player1Size.y)) {
+      player1Pos.y += player1Speed * GetFrameTime();
+      player1MovingDown = true;
+    }
+
+    if (IsKeyDown(KEY_UP) && (player2Pos.y > 0)) {
+      player2Pos.y -= player2Speed * GetFrameTime();
+      player2MovingUp = true;
+    }
+    if (IsKeyDown(KEY_DOWN) && (player2Pos.y < windowSize.y - player2Size.y)) {
+      player2Pos.y += player2Speed * GetFrameTime();
+      player2MovingDown = true;
+    }
+
+    // -------- BallMovement----------
+
+    // to reset ball to previous state if it collides -> no clipping
     newBallPos = Vector2Add(ballPos, Vector2Scale(ballSpeed, (float)deltaTime));
 
-    // -------player 1 hit ----------
-    if (((ballPos.x - ballRadius) <= (player1Pos.x + player1Size.x)) &&
-        (ballPos.y >= player1Pos.y) &&
-        (ballPos.y <= player1Pos.y + player1Size.y) && (ballSpeed.x <= 0)) {
-      player1Speed = IncreaseSpeed(player1Speed, true);
-      ballSpeed.x = -IncreaseSpeed(ballSpeed.x, false);
-      newBallPos = ballPos;
-      printf("hitPlayer1");
-    }
-    // -------player 2 hit ----------
-    if ((ballPos.x + ballRadius >= player2Pos.x) &&
-        (ballPos.y >= player2Pos.y) &&
-        (ballPos.y <= player2Pos.y + player2Size.y) && (ballSpeed.x >= 0)) {
-      player2Speed = IncreaseSpeed(player2Speed, true);
-      ballSpeed.x = -IncreaseSpeed(ballSpeed.x, false);
-      newBallPos = ballPos;
-      printf("hitPlayer2");
-    }
+    // -------player hit -----
+    ballPath = newBallPos - ballPos;
     // ------ wall hit --------
-    if (ballPos.x < 0 + ballRadius) {
-      return 1;
-    }
-    if (ballPos.x > windowSize.x - ballRadius) {
+    if (newBallPos.x <= 0 + ballRadius) {
       return 2;
+    }
+    if (newBallPos.x >= windowSize.x - ballRadius) {
+      return 1;
     }
     if ((ballPos.y < 0 + ballRadius) && (ballSpeed.y <= 0)) {
       ballSpeed.y = -IncreaseSpeed(ballSpeed.y, false);
@@ -90,25 +99,8 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
       newBallPos = ballPos;
     }
     ballPos = newBallPos;
-
-    // todo : adjust ballSpeed to speed hit by Player
-
-    // -------- player movement ----------
-
-    if (IsKeyDown(KEY_W) && (player1Pos.y > 0)) {
-      player1Pos.y -= player1Speed * GetFrameTime();
-    }
-    if (IsKeyDown(KEY_S) && (player1Pos.y < windowSize.y - player1Size.y)) {
-      player1Pos.y += player1Speed * GetFrameTime();
-    }
-
-    if (IsKeyDown(KEY_UP) && (player2Pos.y > 0)) {
-      player2Pos.y -= player2Speed * GetFrameTime();
-    }
-    if (IsKeyDown(KEY_DOWN) && (player2Pos.y < windowSize.y - player2Size.y)) {
-      player2Pos.y += player2Speed * GetFrameTime();
-    }
     // ----------- drawing ---------------
+
     BeginDrawing();
 
     ClearBackground(GRAY);
