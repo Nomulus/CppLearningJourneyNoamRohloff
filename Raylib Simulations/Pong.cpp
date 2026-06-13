@@ -37,7 +37,7 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
     ballPos.x = windowSize.x / 4;
   }
 
-  Vector2 player1Size{200, 120};
+  Vector2 player1Size{400, 120};
   Vector2 player2Size{20, 120};
   Vector2 player1Pos = {10, windowSize.y / 2.0f - player1Size.y / 2};
   Vector2 player2Pos = {windowSize.x - player2Size.x - 10,
@@ -48,7 +48,7 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
 
   double deltaTime{};
 
-  bool ballBehindPlayer1Front{};
+  bool ballFrontBehindPlayer1Front{};
   bool ballMiddleUnderPlayer1TopLine{};
   bool ballMiddleOverPlayer1BottomLine{};
   bool ballOverPlayer1BottomLine{};
@@ -84,46 +84,87 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
 
     // ----------- updating ----------
 
+    // -------- player movement ----------
+
+    if (IsKeyDown(KEY_W) && (player1Pos.y > 0)) {
+      player1Pos.y -= player1Speed * GetFrameTime();
+      player1MovingUp = true;
+    } else {
+      player1MovingUp = false;
+    }
+    if (IsKeyDown(KEY_S) && (player1Pos.y < windowSize.y - player1Size.y)) {
+      player1Pos.y += player1Speed * GetFrameTime();
+      player1MovingDown = true;
+    } else {
+      player1MovingDown = false;
+    }
+
+    if (IsKeyDown(KEY_UP) && (player2Pos.y > 0)) {
+      player2Pos.y -= player2Speed * GetFrameTime();
+    }
+    if (IsKeyDown(KEY_DOWN) && (player2Pos.y < windowSize.y - player2Size.y)) {
+      player2Pos.y += player2Speed * GetFrameTime();
+    }
     newBallPos = Vector2Add(ballPos, Vector2Scale(ballSpeed, (float)deltaTime));
 
     // -------player 1 hit ----------
 
     // where is ball relative to player
-    ballBehindPlayer1Front =
-        (ballPos.x - ballRadius) <= (player1Pos.x + player1Size.x);
+    ballFrontBehindPlayer1Front =
+        (newBallPos.x - ballRadius) <= (player1Pos.x + player1Size.x);
+    if (ballFrontBehindPlayer1Front) {
+      printf("ballFrontBehindPlayer1Front\n");
+    }
 
-    ballMiddleUnderPlayer1TopLine = newBallPos.y >= player1Pos.y;
+    ballMiddleBehindPlayer1Front =
+
+        ballMiddleUnderPlayer1TopLine =
+            (newBallPos.y >= player1Pos.y) && ballFrontBehindPlayer1Front;
+    if (ballMiddleUnderPlayer1TopLine) {
+      printf("ballMiddleUnderPlayer1TopLine\n");
+    }
 
     ballMiddleOverPlayer1BottomLine =
-        newBallPos.y <= player1Pos.y + player1Size.y;
+        newBallPos.y <= (player1Pos.y + player1Size.y) &&
+        ballFrontBehindPlayer1Front;
+    if (ballMiddleOverPlayer1BottomLine) {
+      printf("ballMiddleOverPlayer1BottomLine\n");
+    }
 
-    ballGoingTowordsPlayer1 = ballSpeed.x <= 0;
+    ballGoingTowordsPlayer1 = (ballSpeed.x <= 0) && ballFrontBehindPlayer1Front;
+    if (ballGoingTowordsPlayer1) {
+      printf("ballGoingTowordsPlayer1\n");
+    }
 
-    ballUnderPlayer1TopLine = (ballPos.y + ballRadius) >= player1Pos.y;
+    ballUnderPlayer1TopLine = ((ballPos.y + ballRadius) >= player1Pos.y) &&
+                              ballFrontBehindPlayer1Front;
+    if (ballUnderPlayer1TopLine) {
+      printf("ballUnderPlayer1TopLine\n");
+    }
 
     ballOverPlayer1BottomLine =
-        (ballPos.y - ballRadius) <= player1Pos.y + player1Size.y;
+        (ballPos.y - ballRadius) <= (player1Pos.y + player1Size.y) &&
+        ballFrontBehindPlayer1Front;
+    if (ballOverPlayer1BottomLine) {
+      printf("ballOverPlayer1BottomLine\n\n");
+    }
 
     // did ball hit the Player
     player1IsHitOnSide =
-        ((ballBehindPlayer1Front) && (ballMiddleUnderPlayer1TopLine) &&
+        ((ballFrontBehindPlayer1Front) && (ballMiddleUnderPlayer1TopLine) &&
          (ballMiddleOverPlayer1BottomLine) && (ballGoingTowordsPlayer1));
 
     player1IsHitOnTop =
-        ((ballBehindPlayer1Front) && (ballUnderPlayer1TopLine) &&
-         (ballGoingTowordsPlayer1));
+        ((ballMiddleBehindPlayer1Front) && (ballUnderPlayer1TopLine) &&
+         (ballOverPlayer1BottomLine) && (ballGoingTowordsPlayer1));
 
     player1IsHitOnBottom =
-        ((ballBehindPlayer1Front) && (ballOverPlayer1BottomLine) &&
-         (ballGoingTowordsPlayer1));
-
-    player1MovingUp = IsKeyDown(KEY_W) && (player1Pos.y > 0);
-    player1MovingDown =
-        IsKeyDown(KEY_S) && (player1Pos.y + player1Size.y < windowSize.y);
+        ((ballMiddleBehindPlayer1Front) && (ballOverPlayer1BottomLine) &&
+         (ballUnderPlayer1TopLine) && (ballGoingTowordsPlayer1));
 
     if (player1IsHitOnSide) {
       player1Speed = IncreaseSpeed(player1Speed, true);
-      ballSpeed.x = IncreaseSpeed(ballSpeed.x, false);
+      ballSpeed.x = -IncreaseSpeed(ballSpeed.x, false);
       newBallPos = ballPos;
       if (player1MovingUp) {
         ballSpeed.y = ballSpeed.y - 200;
@@ -136,21 +177,21 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
     } else if (player1IsHitOnTop) {
       player1Speed = IncreaseSpeed(player1Speed, true);
       if (ballSpeed.y <= 0) {
-        ballSpeed.y = -IncreaseSpeed(ballSpeed.y, false);
-      } else {
         ballSpeed.y = IncreaseSpeed(ballSpeed.y, false);
+      } else {
+        ballSpeed.y = -IncreaseSpeed(ballSpeed.y, false);
       }
-      ballPos.y = player1Pos.y - ballRadius;
+      ballPos.y = player1Pos.y - ballRadius - 1;
       cout << "hit top " << endl;
 
     } else if (player1IsHitOnBottom) {
       player1Speed = IncreaseSpeed(player1Speed, true);
       if (ballSpeed.y >= 0) {
-        ballSpeed.y = -IncreaseSpeed(ballSpeed.y, false);
-      } else {
         ballSpeed.y = IncreaseSpeed(ballSpeed.y, false);
+      } else {
+        ballSpeed.y = -IncreaseSpeed(ballSpeed.y, false);
       }
-      ballPos.y = player1Pos.y + ballRadius;
+      ballPos.y = player1Pos.y + ballRadius + 1;
       cout << "hit bottom " << endl;
     }
     // -------player 2 hit ----------
@@ -224,21 +265,6 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
     }
     ballPos = newBallPos;
 
-    // -------- player movement ----------
-
-    if (IsKeyDown(KEY_W) && (player1Pos.y > 0)) {
-      player1Pos.y -= player1Speed * GetFrameTime();
-    }
-    if (IsKeyDown(KEY_S) && (player1Pos.y < windowSize.y - player1Size.y)) {
-      player1Pos.y += player1Speed * GetFrameTime();
-    }
-
-    if (IsKeyDown(KEY_UP) && (player2Pos.y > 0)) {
-      player2Pos.y -= player2Speed * GetFrameTime();
-    }
-    if (IsKeyDown(KEY_DOWN) && (player2Pos.y < windowSize.y - player2Size.y)) {
-      player2Pos.y += player2Speed * GetFrameTime();
-    }
     // ----------- drawing ---------------
     BeginDrawing();
 
