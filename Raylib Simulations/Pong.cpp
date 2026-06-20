@@ -13,6 +13,8 @@ float IncreaseSpeed(float speed, bool isPlayer) {
   }
 }
 
+typedef enum GameScreen { TITLE, GAMEPLAY, BREAK } GameScreen;
+
 int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
   Vector2 virtualSize = {720, 720};
   const int ballRadius = 13;
@@ -311,11 +313,50 @@ int StandardLoop(Vector2 windowSize, int startingSide, int FPS) {
 int main() {
   Vector2 windowSize = {720, 720};
   int startingSide{1};
+  int loser{0};
   int FPS = 60;
   InitWindow(windowSize.x, windowSize.y, "PongByNoam");
+
+  GameScreen currentScreen = TITLE;
   SetTargetFPS(FPS);
   while (WindowShouldClose() == false) {
-    startingSide = StandardLoop(windowSize, startingSide, FPS);
+
+    ClearBackground(RAYWHITE);
+
+    switch (currentScreen) {
+    case TITLE: {
+      if (IsKeyPressed(KEY_ENTER) || (IsGestureDetected(GESTURE_TAP))) {
+        currentScreen = GAMEPLAY;
+      }
+      BeginDrawing();
+
+      DrawRectangle(0, 0, windowSize.x, windowSize.y, GREEN);
+      DrawText("Pong by Noam", 20, 20, 40, DARKGREEN);
+      DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 120, 220, 20,
+               DARKGREEN);
+      EndDrawing();
+    } break;
+    case GAMEPLAY: {
+      loser = StandardLoop(windowSize, startingSide, FPS);
+      if (loser) {
+        currentScreen = BREAK;
+      }
+    } break;
+    case BREAK: {
+      if (IsKeyPressed(KEY_ENTER) || (IsGestureDetected(GESTURE_TAP))) {
+        currentScreen = GAMEPLAY;
+      }
+      BeginDrawing();
+
+      DrawRectangle(0, 0, windowSize.x, windowSize.y, GREEN);
+      DrawText("Someone Lost, don't know who tho.", 20, 20, 40, DARKGREEN);
+      DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 120, 220, 20,
+               DARKGREEN);
+      EndDrawing();
+
+      break;
+    }
+      return 0;
+    }
   }
-  return 0;
 }
